@@ -29,8 +29,8 @@ datasource:
     port: 3306
     host: "operations-mysql"
     schema: "tenants"
-    username: "mifos"
-    password: "password"
+    username: "root"
+    password: "mysql"
 
 server:
   port: 8000
