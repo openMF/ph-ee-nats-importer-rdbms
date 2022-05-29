@@ -27,7 +27,7 @@ datasource:
     driverclass_name: "com.mysql.cj.jdbc.Driver"
   core:
     port: 3306
-    host: "operationsmysql"
+    host: "operations-mysql"
     schema: "tenants"
     username: "mifos"
     password: "password"
