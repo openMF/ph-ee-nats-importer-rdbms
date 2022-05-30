@@ -64,7 +64,12 @@ public class NatsConsumer {
             logger.debug("bpmnprocessIdWithTenant "+bpmnprocessIdWithTenant);
 
             String tenantName = bpmnprocessIdWithTenant.substring(bpmnprocessIdWithTenant.indexOf("-") + 1);
+            if(tenantName==null || tenantName.equalsIgnoreCase("")){
+                tenantName ="defaul";
+            }
+            logger.debug("tenantName "+tenantName);
             String bpmnprocessId = bpmnprocessIdWithTenant.substring(0, bpmnprocessIdWithTenant.indexOf("-"));
+            logger.debug("bpmnprocessId "+bpmnprocessId);
 
             TenantServerConnection tenant = repository.findOneBySchemaName(tenantName);
             ThreadLocalContextUtil.setTenant(tenant);
