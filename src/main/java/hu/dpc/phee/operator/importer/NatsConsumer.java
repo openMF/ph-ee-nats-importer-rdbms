@@ -60,6 +60,8 @@ public class NatsConsumer {
             } else {
                 tempDocumentStore.setBpmnprocessId(workflowKey, bpmnprocessIdWithTenant);
             }
+            
+            logger.debug("bpmnprocessIdWithTenant "+bpmnprocessIdWithTenant);
 
             String tenantName = bpmnprocessIdWithTenant.substring(bpmnprocessIdWithTenant.indexOf("-") + 1);
             String bpmnprocessId = bpmnprocessIdWithTenant.substring(0, bpmnprocessIdWithTenant.indexOf("-"));
