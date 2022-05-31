@@ -75,6 +75,9 @@ bpmn:
     - id: "mpesa_flow-paygops"
       direction: "${bpmn.incoming-direction}"
       type: "${bpmn.transaction-request-type}"
+    - id: "phee_same_bank_same_owner"
+      direction: "${bpmn.outgoing-direction}"
+      type: "${bpmn.transfer-type}"
 
 logging:
   level:

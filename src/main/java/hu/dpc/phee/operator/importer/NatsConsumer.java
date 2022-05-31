@@ -61,11 +61,11 @@ public class NatsConsumer {
                 tempDocumentStore.setBpmnprocessId(workflowKey, bpmnprocessIdWithTenant);
             }
             
-            logger.debug("bpmnprocessIdWithTenant "+bpmnprocessIdWithTenant);
+            //logger.debug("bpmnprocessIdWithTenant "+bpmnprocessIdWithTenant);
             String tenantName = bpmnprocessIdWithTenant.substring(bpmnprocessIdWithTenant.indexOf("-") + 1);            
-            logger.debug("tenantName "+tenantName);
+            //logger.debug("tenantName "+tenantName);
             String bpmnprocessId = bpmnprocessIdWithTenant.substring(0, bpmnprocessIdWithTenant.indexOf("-"));
-            logger.debug("bpmnprocessId "+bpmnprocessId);
+            //logger.debug("bpmnprocessId "+bpmnprocessId);
 
             TenantServerConnection tenant = repository.findOneBySchemaName(tenantName);
             ThreadLocalContextUtil.setTenant(tenant);

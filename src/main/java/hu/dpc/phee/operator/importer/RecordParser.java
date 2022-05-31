@@ -80,7 +80,9 @@ public class RecordParser {
         }
 
         String name = newVariable.read("$.value.name");
+        logger.debug("Variable name" + name);
         Long workflowInstanceKey = newVariable.read("$.value.processInstanceKey");
+        logger.debug("workflowInstanceKey "+workflowInstanceKey);
         if (inflightCallActivities.containsKey(workflowInstanceKey)) {
             Long parentInstanceKey = inflightCallActivities.get(workflowInstanceKey);
             logger.debug("variable {} in instance {} has parent workflowInstance {}", name, workflowInstanceKey, parentInstanceKey);
@@ -88,6 +90,19 @@ public class RecordParser {
         }
 
         BpmnProcess bpmnProcess = bpmnProcessProperties.getById(bpmnProcessId);
+        
+        /*
+        List<BpmnProcess> processes = bpmnProcessProperties.getProcesses();
+        for(int i=0; i<processes.size(); i++){
+            logger.debug("TIPO PROCESO "+ processes.get(i).getType());
+            logger.debug("TIPO DIRECCION "+ processes.get(i).getDirection());
+            logger.debug("TIPO ID "+ processes.get(i).getId());
+        }
+        
+        logger.debug("bpmnProcess.getDirection() "+bpmnProcess.getDirection());
+        logger.debug("bpmnProcess.getId() "+bpmnProcess.getId());
+        logger.debug("bpmnProcess.getType() "+bpmnProcess.getType());
+        */
         if (transferType.equals(bpmnProcess.getType())) {
             if (variableParser.getTransferParsers().containsKey(name)) {
                 logger.debug("add variable {} to transfer for workflow {}", name, workflowInstanceKey);
