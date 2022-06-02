@@ -21,6 +21,7 @@ public class InflightTransferManager {
     private TransferRepository transferRepository;
 
     public void transferStarted(Long workflowInstanceKey, Long timestamp, String direction) {
+        logger.debug("TRANSFER STARTED");
         Transfer transfer = getOrCreateTransfer(workflowInstanceKey);
         if (transfer.getStartedAt() == null) {
             transfer.setDirection(direction);
@@ -32,6 +33,7 @@ public class InflightTransferManager {
     }
 
     public void transferEnded(Long workflowInstanceKey, Long timestamp) {
+        logger.debug("TRANSFER ENDED");
         synchronized (inflightTransfers) {
             Transfer transfer = inflightTransfers.remove(workflowInstanceKey);
             if (transfer == null) {
@@ -49,6 +51,7 @@ public class InflightTransferManager {
     }
 
     public Transfer getOrCreateTransfer(Long workflowInstanceKey) {
+        logger.debug("TRANSFER GET OR CREATE");
         synchronized (inflightTransfers) {
             Transfer transfer = inflightTransfers.get(workflowInstanceKey);
             if (transfer == null) {

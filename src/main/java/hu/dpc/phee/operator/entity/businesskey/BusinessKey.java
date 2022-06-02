@@ -9,7 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "businesskeys")
+@Table(name = "ph_businesskeys")
 public class BusinessKey extends AbstractPersistableCustom<Long> {
 
     @Column(name = "BUSINESS_KEY")

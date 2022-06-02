@@ -14,7 +14,7 @@ import java.util.Date;
 import static hu.dpc.phee.operator.entity.transactionrequest.TransactionRequestState.IN_PROGRESS;
 
 @Entity
-@Table(name = "transaction_requests")
+@Table(name = "ph_transaction_requests")
 public class TransactionRequest extends AbstractPersistableCustom<Long> {
 
     @Column(name = "WORKFLOW_INSTANCE_KEY")

@@ -11,7 +11,7 @@ import javax.persistence.Lob;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "variables")
+@Table(name = "ph_variables")
 @Cacheable(false)
 public class Variable extends AbstractPersistableCustom<Long> {
 

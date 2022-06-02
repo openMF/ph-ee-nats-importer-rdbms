@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
-@Table(name = "transfers")
+@Table(name = "ph_transfers")
 public class Transfer extends AbstractPersistableCustom<Long> {
 
     @Column(name = "WORKFLOW_INSTANCE_KEY")

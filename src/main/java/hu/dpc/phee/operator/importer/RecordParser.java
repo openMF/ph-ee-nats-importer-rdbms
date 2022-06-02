@@ -80,7 +80,7 @@ public class RecordParser {
         }
 
         String name = newVariable.read("$.value.name");
-        logger.debug("Variable name" + name);
+        logger.debug("VARIABLE NAME " + name);
         Long workflowInstanceKey = newVariable.read("$.value.processInstanceKey");
         logger.debug("workflowInstanceKey "+workflowInstanceKey);
         if (inflightCallActivities.containsKey(workflowInstanceKey)) {
@@ -104,6 +104,7 @@ public class RecordParser {
         logger.debug("bpmnProcess.getType() "+bpmnProcess.getType());
         */
         if (transferType.equals(bpmnProcess.getType())) {
+            logger.debug("TIPO DE TRANSFERENCIA");
             if (variableParser.getTransferParsers().containsKey(name)) {
                 logger.debug("add variable {} to transfer for workflow {}", name, workflowInstanceKey);
                 String value = newVariable.read("$.value.value");
@@ -180,16 +181,22 @@ public class RecordParser {
         Long callActivityKey = json.read("$.key");
 
         if (transferType.equals(bpmnProcess.getType())) {
+            logger.debug("INTENT "+intent);
             if ("ELEMENT_ACTIVATING".equals(intent)) {
+                logger.debug("ACTIVATING");
                 if (hasParent) {
+                    logger.debug("HAS PARENT");
                     logger.debug("Sub process {} with key {} started from parent instance {}", bpmnProcessId, callActivityKey, parentWorkflowInstanceKey);
                     inflightCallActivities.put(callActivityKey, (Long) parentWorkflowInstanceKey);
                     inflightTransferManager.transferStarted((Long) parentWorkflowInstanceKey, timestamp, outgoingDirection);
                 } else {
+                    logger.debug("INFLIGHT");
                     inflightTransferManager.transferStarted(workflowInstanceKey, timestamp, bpmnProcess.getDirection());
                 }
             } else if ("ELEMENT_COMPLETED".equals(intent)) {
+                logger.debug("COMPLETED");
                 if (inflightCallActivities.containsKey(workflowInstanceKey)) {
+                    logger.debug("INFLIGHT");
                     Long parentInstanceKey = inflightCallActivities.remove(workflowInstanceKey);
                     logger.debug("Sub process {} with key {} ended from parent instance {}", bpmnProcessId, callActivityKey, parentInstanceKey);
                     workflowInstanceKey = parentInstanceKey;

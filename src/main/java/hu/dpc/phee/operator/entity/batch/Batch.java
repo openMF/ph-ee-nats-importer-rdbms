@@ -10,7 +10,7 @@ import javax.persistence.Table;
 import java.util.Date;
 
 @Entity
-@Table(name = "batches")
+@Table(name = "ph_batches")
 public class Batch extends AbstractPersistableCustom<Long> {
 
     @Column(name = "BATCH_ID")

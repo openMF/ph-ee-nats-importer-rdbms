@@ -9,7 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "tasks")
+@Table(name = "ph_tasks")
 public class Task extends AbstractPersistableCustom<Long> {
 
     @Column(name = "WORKFLOW_KEY")
