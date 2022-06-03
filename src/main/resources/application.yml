@@ -39,6 +39,7 @@ bpmn:
   transfer-type: "TRANSFER"
   transaction-request-type: "TRANSACTION-REQUEST"
   batch-type: "BATCH"
+  internal-direction: "INTERNAL"
   incoming-direction: "INCOMING"
   outgoing-direction: "OUTGOING"
   processes:
