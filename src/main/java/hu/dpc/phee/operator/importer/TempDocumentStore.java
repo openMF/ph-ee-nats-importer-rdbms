@@ -13,18 +13,18 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class TempDocumentStore {
 
-    private final Map<Long, List<DocumentContext>> tempVariableEvents = new HashMap<>();
-    private final Map<Long, String> workflowkeyBpmnAccociations = new ConcurrentHashMap<>();
+    private final Map<Object, List<DocumentContext>> tempVariableEvents = new HashMap<>();
+    private final Map<Object, String> workflowkeyBpmnAccociations = new ConcurrentHashMap<>();
 
-    public String getBpmnprocessId(Long workflowKey) {
+    public String getBpmnprocessId(Object workflowKey) {
         return workflowkeyBpmnAccociations.get(workflowKey);
     }
 
-    public void setBpmnprocessId(Long workflowKey, String bpmnprocessId) {
+    public void setBpmnprocessId(Object workflowKey, String bpmnprocessId) {
         workflowkeyBpmnAccociations.putIfAbsent(workflowKey, bpmnprocessId);
     }
 
-    public void storeDocument(Long workflowKey, DocumentContext document) {
+    public void storeDocument(Object workflowKey, DocumentContext document) {
         synchronized (tempVariableEvents) {
             List<DocumentContext> existingEvents = tempVariableEvents.get(workflowKey);
             if (existingEvents == null) {
@@ -35,7 +35,7 @@ public class TempDocumentStore {
         }
     }
 
-    public List<DocumentContext> takeStoredDocuments(Long workflowKey) {
+    public List<DocumentContext> takeStoredDocuments(Object workflowKey) {
         synchronized (tempVariableEvents) {
             List<DocumentContext> removedDocuments = tempVariableEvents.remove(workflowKey);
             return removedDocuments == null ? Collections.emptyList() : removedDocuments;

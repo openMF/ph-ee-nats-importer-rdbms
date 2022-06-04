@@ -44,14 +44,29 @@ public class VariableParser {
         transferParsers.put("quoteId", pair -> pair.getFirst().setPayeeQuoteCode(strip(pair.getSecond())));
         transferParsers.put("transferResponse-PREPARE", pair -> parseTransferResponsePrepare(pair.getFirst(), pair.getSecond()));
         transferParsers.put("transferResponse-CREATE", pair -> parseTransferResponse(pair.getFirst(), strip(pair.getSecond())));
-        transferParsers.put("transferCreateFailed", pair -> parseTransferCreateFailed(pair.getFirst(), pair.getSecond()));
-        transferParsers.put("transactionId", pair -> pair.getFirst().setTransactionId(strip(pair.getSecond())));
+        transferParsers.put("transferCreateFailed", pair -> parseTransferCreateFailed(pair.getFirst(), pair.getSecond()));        
         transferParsers.put("partyLookupFspId", pair -> pair.getFirst().setPayeeDfspId(strip(pair.getSecond())));
         transferParsers.put("initiatorFspId", pair -> pair.getFirst().setPayerDfspId(strip(pair.getSecond())));
         transferParsers.put("channelRequest", pair -> parseChannelRequest(pair.getFirst(), pair.getSecond()));
         transferParsers.put("errorInformation", pair -> {parseErrorInformation(pair.getFirst(), pair.getSecond());
             parseTransferCreateFailed(pair.getFirst(), pair.getSecond());});
         transferParsers.put("batchId", pair -> pair.getFirst().setBatchId(strip(pair.getSecond())));
+        //Data from PaymentRequest
+        transferParsers.put("transactionId", pair -> pair.getFirst().setTransactionId(strip(pair.getSecond())));
+        transferParsers.put("amount", pair -> pair.getFirst().setAmount(new BigDecimal(strip(pair.getSecond()))));
+        transferParsers.put("sourceAccountId", pair -> pair.getFirst().setPayerPartyId(strip(pair.getSecond())));
+        transferParsers.put("targetAccountId", pair -> pair.getFirst().setPayeePartyId(strip(pair.getSecond())));
+        transferParsers.put("currency", pair -> pair.getFirst().setCurrency(strip(pair.getSecond())));
+        transferParsers.put("sourceCurrency", pair -> pair.getFirst().setPayerFeeCurrency(strip(pair.getSecond())));
+        transferParsers.put("targetCurrency", pair -> pair.getFirst().setPayeeFeeCurrency(strip(pair.getSecond())));
+        transferParsers.put("sourceFee", pair -> pair.getFirst().setPayerFee(new BigDecimal(strip(pair.getSecond()))));
+        transferParsers.put("targetFee", pair -> pair.getFirst().setPayeeFee(new BigDecimal(strip(pair.getSecond()))));
+        transferParsers.put("sourceInstitution", pair -> pair.getFirst().setPayerDfspId(strip(pair.getSecond())));
+        transferParsers.put("targetInstitution", pair -> pair.getFirst().setPayeeDfspId(strip(pair.getSecond())));
+        transferParsers.put("sourceQuoteCode", pair -> pair.getFirst().setPayerQuoteCode(strip(pair.getSecond())));
+        transferParsers.put("targetQuoteCode", pair -> pair.getFirst().setPayeeQuoteCode(strip(pair.getSecond())));
+        transferParsers.put("sourceAccountType", pair -> pair.getFirst().setPayerPartyIdType(strip(pair.getSecond())));
+        transferParsers.put("targetAccountType", pair -> pair.getFirst().setPayeePartyIdType(strip(pair.getSecond())));
 
         transactionRequestParsers.put("authType", pair -> pair.getFirst().setAuthType(strip(pair.getSecond())));
         transactionRequestParsers.put("transactionId", pair -> pair.getFirst().setTransactionId(strip(pair.getSecond())));

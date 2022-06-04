@@ -35,37 +35,45 @@ public class NatsConsumer {
     public void listen(String rawData) {
         try {
             DocumentContext incomingRecord = JsonPathReader.parse(rawData);
-            logger.debug("from nats: {}", incomingRecord.jsonString());
+            logger.trace("MESSAGE FROM NATS: {}", incomingRecord.jsonString());
             if("DEPLOYMENT".equals(incomingRecord.read("$.valueType"))) {
-                logger.info("Deployment event arrived for bpmn: {}, skip processing", incomingRecord.read("$.value.deployedWorkflows[0].bpmnProcessId", String.class));
+                logger.trace("Deployment event arrived for bpmn: {}, skip processing", incomingRecord.read("$.value.deployedWorkflows[0].bpmnProcessId", String.class));
                 return;
             }
 
             if(incomingRecord.read("$.valueType").equals("VARIABLE_DOCUMENT")) {
-                logger.info("Skipping VARIABLE_DOCUMENT record ");
+                logger.trace("Skipping VARIABLE_DOCUMENT record ");
                 return;
             }
 
-            Long workflowKey = incomingRecord.read("$.value.processDefinitionKey");
+            Object workflowKey = incomingRecord.read("$.value.processDefinitionKey");
+            logger.trace("workflowKey "+workflowKey);
             String bpmnprocessIdWithTenant = incomingRecord.read("$.value.bpmnProcessId");
-            Long recordKey = incomingRecord.read("$.key");
+            logger.trace("bpmnprocessIdWithTenant "+bpmnprocessIdWithTenant);
+            Object recordKey = incomingRecord.read("$.key");
+            logger.trace("recordKey "+recordKey.toString());
 
-            if(bpmnprocessIdWithTenant == null) {
+            if(bpmnprocessIdWithTenant == null || bpmnprocessIdWithTenant.equalsIgnoreCase("") && workflowKey == null) {
+                logger.trace("skipping record: {}", incomingRecord.jsonString());
+                return;
+            } 
+            else if(bpmnprocessIdWithTenant == null || bpmnprocessIdWithTenant.equalsIgnoreCase("") && workflowKey!=null) {
                 bpmnprocessIdWithTenant = tempDocumentStore.getBpmnprocessId(workflowKey);
                 if (bpmnprocessIdWithTenant == null) {
                     tempDocumentStore.storeDocument(workflowKey, incomingRecord);
-                    logger.info("Record with key {} workflowkey {} has no associated bpmn, stored temporarly", recordKey, workflowKey);
+                    logger.info("Record with key {} workflowkey {} has no associated bpmn, stored temporarly", recordKey.toString(), workflowKey);
                     return;
                 }
-            } else {
+            } 
+            else {
                 tempDocumentStore.setBpmnprocessId(workflowKey, bpmnprocessIdWithTenant);
             }
             
-            //logger.debug("bpmnprocessIdWithTenant "+bpmnprocessIdWithTenant);
+            //logger.trace("bpmnprocessIdWithTenant "+bpmnprocessIdWithTenant);
             String tenantName = bpmnprocessIdWithTenant.substring(bpmnprocessIdWithTenant.indexOf("-") + 1);            
-            //logger.debug("tenantName "+tenantName);
+            //logger.trace("tenantName "+tenantName);
             String bpmnprocessId = bpmnprocessIdWithTenant.substring(0, bpmnprocessIdWithTenant.indexOf("-"));
-            //logger.debug("bpmnprocessId "+bpmnprocessId);
+            //logger.trace("bpmnprocessId "+bpmnprocessId);
 
             TenantServerConnection tenant = repository.findOneBySchemaName(tenantName);
             ThreadLocalContextUtil.setTenant(tenant);
@@ -81,6 +89,7 @@ public class NatsConsumer {
             for(DocumentContext doc : documents) {
                 try {
                     String valueType = doc.read("$.valueType");
+                    logger.trace("TIPO DE DOCUMENTO RECIBIDO "+valueType);
                     switch (valueType) {
                         case "VARIABLE":
                             DocumentContext processedVariable = recordParser.processVariable(doc); // TODO prepare for parent workflow

@@ -2,6 +2,7 @@ package hu.dpc.phee.operator.importer;
 
 import hu.dpc.phee.operator.entity.transfer.Transfer;
 import hu.dpc.phee.operator.entity.transfer.TransferRepository;
+import hu.dpc.phee.operator.entity.transfer.TransferStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,19 +22,20 @@ public class InflightTransferManager {
     private TransferRepository transferRepository;
 
     public void transferStarted(Long workflowInstanceKey, Long timestamp, String direction) {
-        logger.debug("TRANSFER STARTED");
+        logger.trace("TRANSFER STARTED");
         Transfer transfer = getOrCreateTransfer(workflowInstanceKey);
+        logger.trace("transfer.getStartedAt() "+transfer.getStartedAt());
         if (transfer.getStartedAt() == null) {
             transfer.setDirection(direction);
             transfer.setStartedAt(new Date(timestamp));
             transferRepository.save(transfer);
         } else {
-            logger.debug("transfer {} already started at {}", workflowInstanceKey, transfer.getStartedAt());
+            logger.trace("transfer {} already started at {}", workflowInstanceKey, transfer.getStartedAt());
         }
     }
 
     public void transferEnded(Long workflowInstanceKey, Long timestamp) {
-        logger.debug("TRANSFER ENDED");
+        logger.trace("TRANSFER ENDED");
         synchronized (inflightTransfers) {
             Transfer transfer = inflightTransfers.remove(workflowInstanceKey);
             if (transfer == null) {
@@ -45,20 +47,21 @@ public class InflightTransferManager {
                 }
             }
             transfer.setCompletedAt(new Date(timestamp));
+            transfer.setStatus(TransferStatus.COMPLETED);
             transferRepository.save(transfer);
-            logger.debug("transfer finished {}", transfer.getWorkflowInstanceKey());
+            logger.trace("transfer finished {}", transfer.getWorkflowInstanceKey());
         }
     }
 
     public Transfer getOrCreateTransfer(Long workflowInstanceKey) {
-        logger.debug("TRANSFER GET OR CREATE");
+        logger.trace("TRANSFER GET OR CREATE");
         synchronized (inflightTransfers) {
             Transfer transfer = inflightTransfers.get(workflowInstanceKey);
             if (transfer == null) {
                 transfer = transferRepository.findByWorkflowInstanceKey(workflowInstanceKey);
                 if (transfer == null) {
                     transfer = new Transfer(workflowInstanceKey); // Sets status to ONGOING
-                    logger.debug("started in-flight transfer {}", transfer.getWorkflowInstanceKey());
+                    logger.trace("started in-flight transfer {}", transfer.getWorkflowInstanceKey());
                 }
                 inflightTransfers.put(workflowInstanceKey, transfer);
             }

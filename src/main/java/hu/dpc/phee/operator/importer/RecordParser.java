@@ -13,6 +13,7 @@ import hu.dpc.phee.operator.entity.transfer.Transfer;
 import hu.dpc.phee.operator.entity.transfer.TransferRepository;
 import hu.dpc.phee.operator.entity.variable.Variable;
 import hu.dpc.phee.operator.entity.variable.VariableRepository;
+import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,48 +75,37 @@ public class RecordParser {
     private final Map<Long, Long> inflightCallActivities = new ConcurrentHashMap<>();
 
     public void addVariableToEntity(DocumentContext newVariable, String bpmnProcessId) {
-        logger.debug("newVariable in RecordParser: {}", newVariable.jsonString()); //
+        logger.trace("newVariable in RecordParser: {}", newVariable.jsonString()); //
         if (newVariable == null) {
             return;
         }
 
         String name = newVariable.read("$.value.name");
-        logger.debug("VARIABLE NAME " + name);
+        logger.trace("VARIABLE NAME " + name);
         Long workflowInstanceKey = newVariable.read("$.value.processInstanceKey");
-        logger.debug("workflowInstanceKey "+workflowInstanceKey);
+        logger.trace("workflowInstanceKey "+workflowInstanceKey);
         if (inflightCallActivities.containsKey(workflowInstanceKey)) {
             Long parentInstanceKey = inflightCallActivities.get(workflowInstanceKey);
-            logger.debug("variable {} in instance {} has parent workflowInstance {}", name, workflowInstanceKey, parentInstanceKey);
+            logger.trace("variable {} in instance {} has parent workflowInstance {}", name, workflowInstanceKey, parentInstanceKey);
             workflowInstanceKey = parentInstanceKey;
         }
 
-        BpmnProcess bpmnProcess = bpmnProcessProperties.getById(bpmnProcessId);
-        
-        /*
-        List<BpmnProcess> processes = bpmnProcessProperties.getProcesses();
-        for(int i=0; i<processes.size(); i++){
-            logger.debug("TIPO PROCESO "+ processes.get(i).getType());
-            logger.debug("TIPO DIRECCION "+ processes.get(i).getDirection());
-            logger.debug("TIPO ID "+ processes.get(i).getId());
-        }
-        
-        logger.debug("bpmnProcess.getDirection() "+bpmnProcess.getDirection());
-        logger.debug("bpmnProcess.getId() "+bpmnProcess.getId());
-        logger.debug("bpmnProcess.getType() "+bpmnProcess.getType());
-        */
+        BpmnProcess bpmnProcess = bpmnProcessProperties.getById(bpmnProcessId);        
+       
         if (transferType.equals(bpmnProcess.getType())) {
-            logger.debug("TIPO DE TRANSFERENCIA");
+            logger.trace("TIPO DE TRANSFERENCIA");
             if (variableParser.getTransferParsers().containsKey(name)) {
-                logger.debug("add variable {} to transfer for workflow {}", name, workflowInstanceKey);
+                logger.trace("TIPO DE TRANSFERENCIA add variable {} to transfer for workflow {}", name, workflowInstanceKey);
                 String value = newVariable.read("$.value.value");
-
+                logger.trace("TIPO DE TRANSFERENCIA VALUE "+ value);    
                 Transfer transfer = inflightTransferManager.getOrCreateTransfer(workflowInstanceKey);
+                logger.trace("TIPO DE TRANSFERENCIA transfer.getWorkflowInstanceKey() "+transfer.getWorkflowInstanceKey());
                 variableParser.getTransferParsers().get(name).accept(Pair.of(transfer, value));
                 transferRepository.save(transfer);
             }
         } else if (transactionRequestType.equals(bpmnProcess.getType())) {
             if (variableParser.getTransactionRequestParsers().containsKey(name)) {
-                logger.debug("add variable to transactionRequest {} for workflow {}", name, workflowInstanceKey);
+                logger.trace("add variable to transactionRequest {} for workflow {}", name, workflowInstanceKey);
                 String value = newVariable.read("$.value.value");
 
                 TransactionRequest transactionRequest = inflightTransactionRequestManager.getOrCreateTransactionRequest(workflowInstanceKey);
@@ -127,7 +117,7 @@ public class RecordParser {
             }
         } else if (batchType.equals(bpmnProcess.getType())) {
             if (variableParser.getBatchParsers().containsKey(name)) {
-                logger.debug("add variable {} to batch for workflow {}", name, workflowInstanceKey);
+                logger.trace("add variable {} to batch for workflow {}", name, workflowInstanceKey);
                 String value = newVariable.read("$.value.value");
 
                 Batch batch = inflightBatchManager.getOrCreateBatch(workflowInstanceKey);
@@ -136,7 +126,7 @@ public class RecordParser {
             }
         }
         else {
-            logger.debug("Skip adding variable to {} and type is {}", bpmnProcessId, bpmnProcess.getType()); // xx
+            logger.trace("Skip adding variable to {} and type is {}", bpmnProcessId, bpmnProcess.getType()); // xx
         }
     }
 
@@ -149,7 +139,7 @@ public class RecordParser {
             if (existingVariables.stream().filter(existing -> {
                 return name.equals(existing.getName()) && newTimestamp <= existing.getTimestamp(); // variable already inserted before
             }).findFirst().orElse(null) != null) {
-                logger.debug("Variable {} already inserted at {} for instance {}, skip processing!", name, newTimestamp, workflowInstanceKey);
+                logger.trace("Variable {} already inserted at {} for instance {}, skip processing!", name, newTimestamp, workflowInstanceKey);
                 return null;
             }
         }
@@ -169,36 +159,46 @@ public class RecordParser {
         String bpmnProcessId = json.read("$.value.bpmnProcessId");
         BpmnProcess bpmnProcess = bpmnProcessProperties.getById(bpmnProcessId.split("-")[0]);
         Long workflowInstanceKey = json.read("$.value.processInstanceKey");
+        logger.trace("workflowInstanceKey "+workflowInstanceKey);
         Long timestamp = json.read("$.timestamp");
         String intent = json.read("$.intent");
+        logger.trace("intent "+intent);
         Object parentWorkflowInstanceKey = json.read("$.value.parentProcessInstanceKey");
+        logger.trace("parentWorkflowInstanceKey "+parentWorkflowInstanceKey);
+        Object flowScopeKey = json.read("$.value.flowScopeKey");
+        logger.trace("flowScopeKey "+flowScopeKey);
+        
         boolean hasParent = false;
         if (parentWorkflowInstanceKey instanceof Long && (Long) parentWorkflowInstanceKey > 0) {
             hasParent = true;
         }
+        logger.trace("hasParent "+hasParent);
 
         String elementId = json.read("$.value.elementId");
+        logger.trace("elementId "+elementId);
         Long callActivityKey = json.read("$.key");
-
+        logger.trace("callActivityKey "+callActivityKey);
+        
         if (transferType.equals(bpmnProcess.getType())) {
-            logger.debug("INTENT "+intent);
+            logger.trace("INTENT "+intent);
             if ("ELEMENT_ACTIVATING".equals(intent)) {
-                logger.debug("ACTIVATING");
+                logger.trace("EL INTENT ES ACTIVATING");
                 if (hasParent) {
-                    logger.debug("HAS PARENT");
-                    logger.debug("Sub process {} with key {} started from parent instance {}", bpmnProcessId, callActivityKey, parentWorkflowInstanceKey);
+                    logger.trace("ACTIVATING HAS PARENT");
+                    logger.trace("Sub process {} with key {} started from parent instance {}", bpmnProcessId, callActivityKey, parentWorkflowInstanceKey);
                     inflightCallActivities.put(callActivityKey, (Long) parentWorkflowInstanceKey);
                     inflightTransferManager.transferStarted((Long) parentWorkflowInstanceKey, timestamp, outgoingDirection);
                 } else {
-                    logger.debug("INFLIGHT");
+                    logger.trace("ACTIVATING INFLIGHT");
                     inflightTransferManager.transferStarted(workflowInstanceKey, timestamp, bpmnProcess.getDirection());
                 }
             } else if ("ELEMENT_COMPLETED".equals(intent)) {
-                logger.debug("COMPLETED");
+                logger.trace("EL intent es COMPLETED con llave " +workflowInstanceKey);
+                logger.trace("inflightCallActivities.size() "+inflightCallActivities.size());                
                 if (inflightCallActivities.containsKey(workflowInstanceKey)) {
-                    logger.debug("INFLIGHT");
+                    logger.trace("INFLIGHT COMPLETED");
                     Long parentInstanceKey = inflightCallActivities.remove(workflowInstanceKey);
-                    logger.debug("Sub process {} with key {} ended from parent instance {}", bpmnProcessId, callActivityKey, parentInstanceKey);
+                    logger.trace("Sub process {} with key {} ended from parent instance {}", bpmnProcessId, callActivityKey, parentInstanceKey);
                     workflowInstanceKey = parentInstanceKey;
                 }
                 inflightTransferManager.transferEnded(workflowInstanceKey, timestamp);

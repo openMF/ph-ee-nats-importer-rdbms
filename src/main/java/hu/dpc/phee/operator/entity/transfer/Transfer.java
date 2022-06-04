@@ -23,6 +23,7 @@ public class Transfer extends AbstractPersistableCustom<Long> {
 
     @Column(name = "STARTED_AT")
     private Date startedAt;
+    
     @Column(name = "COMPLETED_AT")
     private Date completedAt;
 
@@ -34,27 +35,37 @@ public class Transfer extends AbstractPersistableCustom<Long> {
 
     @Column(name = "PAYEE_DFSP_ID")
     private String payeeDfspId;
+    
     @Column(name = "PAYEE_PARTY_ID")
     private String payeePartyId;
+    
     @Column(name = "PAYEE_PARTY_ID_TYPE")
     private String payeePartyIdType;
+    
     @Column(name = "PAYEE_FEE")
     private BigDecimal payeeFee;
+    
     @Column(name = "PAYEE_FEE_CURRENCY")
     private String payeeFeeCurrency;
+    
     @Column(name = "PAYEE_QUOTE_CODE")
     private String payeeQuoteCode;
 
     @Column(name = "PAYER_DFSP_ID")
     private String payerDfspId;
+    
     @Column(name = "PAYER_PARTY_ID")
     private String payerPartyId;
+    
     @Column(name = "PAYER_PARTY_ID_TYPE")
     private String payerPartyIdType;
+    
     @Column(name = "PAYER_FEE")
     private BigDecimal payerFee;
+    
     @Column(name = "PAYER_FEE_CURRENCY")
     private String payerFeeCurrency;
+    
     @Column(name = "PAYER_QUOTE_CODE")
     private String payerQuoteCode;
 
