@@ -2,6 +2,8 @@ package hu.dpc.phee.operator.entity.task;
 
 
 import hu.dpc.phee.operator.entity.parent.AbstractPersistableCustom;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
@@ -10,6 +12,8 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "ph_tasks")
+@Getter
+@Setter
 public class Task extends AbstractPersistableCustom<Long> {
 
     @Column(name = "WORKFLOW_KEY")
@@ -26,60 +30,4 @@ public class Task extends AbstractPersistableCustom<Long> {
     private String type;
     @Column(name = "ELEMENT_ID")
     private String elementId;
-
-    public Long getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(Long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public Long getWorkflowKey() {
-        return workflowKey;
-    }
-
-    public void setWorkflowKey(Long workflowKey) {
-        this.workflowKey = workflowKey;
-    }
-
-    public Long getWorkflowInstanceKey() {
-        return workflowInstanceKey;
-    }
-
-    public void setWorkflowInstanceKey(Long workflowInstanceKey) {
-        this.workflowInstanceKey = workflowInstanceKey;
-    }
-
-    public String getIntent() {
-        return intent;
-    }
-
-    public void setIntent(String intent) {
-        this.intent = intent;
-    }
-
-    public String getRecordType() {
-        return recordType;
-    }
-
-    public void setRecordType(String recordType) {
-        this.recordType = recordType;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public String getElementId() {
-        return elementId;
-    }
-
-    public void setElementId(String elementId) {
-        this.elementId = elementId;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
 }
